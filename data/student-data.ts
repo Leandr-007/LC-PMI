@@ -1,0 +1,32 @@
+export const studentData = [
+  {
+    libreta: "12345",
+    apellido: "Pérez",
+    nombre: "Juan Carlos",
+    dni: "12.345.678",
+    curso: "1 A",
+    condicion: "Regular",
+    comision: "Comisión 1",
+    profesores: "Prof. García, Prof. Martínez",
+  },
+  {
+    libreta: "67890",
+    apellido: "González",
+    nombre: "María Elena",
+    dni: "23.456.789",
+    curso: "1 B",
+    condicion: "Libre",
+    comision: "Comisión 2",
+    profesores: "Prof. López, Prof. Fernández",
+  },
+  {
+    libreta: "11111",
+    apellido: "Rodríguez",
+    nombre: "Carlos Alberto",
+    dni: "34.567.890",
+    curso: "1 C",
+    condicion: "Regular",
+    comision: "Comisión 3",
+    profesores: "Prof. Sánchez, Prof. Torres",
+  },
+]

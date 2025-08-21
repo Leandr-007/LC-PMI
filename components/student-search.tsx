@@ -31,7 +31,7 @@ export function StudentSearch() {
   useEffect(() => {
     const loadExcel = async () => {
       try {
-        const response = await fetch("/Respuestas formulario .xlsx")
+        const response = await fetch("/Comisiones.xlsx")
         const arrayBuffer = await response.arrayBuffer()
         const workbook = XLSX.read(arrayBuffer, { type: "buffer" })
         const worksheet = workbook.Sheets[workbook.SheetNames[0]]

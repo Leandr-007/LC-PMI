@@ -21,7 +21,7 @@ interface Student {
 
 export function StudentSearch() {
   const [students, setStudents] = useState<Student[]>([])
-  const [libreta, setLibreta] = useState("")
+  const [dniInput, setDniInput] = useState("")
   const [student, setStudent] = useState<Student | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [notFound, setNotFound] = useState(false)
@@ -29,37 +29,38 @@ export function StudentSearch() {
 
   // ✅ Cargar Excel una sola vez al inicio
   useEffect(() => {
-  const loadExcel = async () => {
-    try {
-      const response = await fetch("/PMI TEst.xlsx")
-      const arrayBuffer = await response.arrayBuffer()
-      const workbook = XLSX.read(arrayBuffer, { type: "buffer" })
-      const worksheet = workbook.Sheets[workbook.SheetNames[0]]
-      const rawData = XLSX.utils.sheet_to_json<any>(worksheet)
+    const loadExcel = async () => {
+      try {
+        const response = await fetch("/Respuestas formulario .xlsx")
+        const arrayBuffer = await response.arrayBuffer()
+        const workbook = XLSX.read(arrayBuffer, { type: "buffer" })
+        const worksheet = workbook.Sheets[workbook.SheetNames[0]]
+        const rawData = XLSX.utils.sheet_to_json<any>(worksheet)
 
-      const normalized: Student[] = rawData.map((row) => ({
-        libreta: String(row["Numero de Libreta"] ?? ""),
-        apellido: row["Apellido"] ?? "",
-        nombre: row["Nombre"] ?? "",
-        dni: String(row["DNI"] ?? ""),
-        curso: row["Curso"] ?? "",
-        condicion: row["Condición"] ?? "",
-        comision: row["Comisión"] ?? "",
-        profesores: row["Profesores"] ?? "",
-      }))
+        const normalized: Student[] = rawData.map((row) => ({
+          libreta: String(row["Número de libreta:"] ?? ""),
+          apellido: row["Apellido"] ?? "",
+          nombre: row["Nombre"] ?? "",
+          // 🔑 DNI sin puntos
+          dni: String(row["D.N.I."] ?? "").replace(/\D/g, ""),
+          curso: row["Curso"] ?? "",
+          condicion: row["Condición"] ?? "",
+          comision: row["Comisión"] ?? "",
+          profesores: row["Profesores"] ?? "",
+        }))
 
-      console.log("Datos normalizados:", normalized)
-      setStudents(normalized)
-    } catch (err) {
-      console.error("Error cargando Excel:", err)
+        console.log("Datos normalizados:", normalized)
+        setStudents(normalized)
+      } catch (err) {
+        console.error("Error cargando Excel:", err)
+      }
     }
-  }
 
-  loadExcel()
-}, [])
+    loadExcel()
+  }, [])
 
   const handleSearch = async () => {
-    if (!libreta.trim()) return
+    if (!dniInput.trim()) return
 
     setIsLoading(true)
     setNotFound(false)
@@ -68,7 +69,10 @@ export function StudentSearch() {
 
     await new Promise((resolve) => setTimeout(resolve, 1000)) // simular delay
 
-    const foundStudent = students.find((s) => String(s.libreta) === libreta.trim())
+    // 🔑 Normalizar lo que ingresa el usuario (sacar puntos)
+    const normalizedInput = dniInput.replace(/\D/g, "")
+
+    const foundStudent = students.find((s) => s.dni === normalizedInput)
 
     if (foundStudent) {
       setStudent(foundStudent)
@@ -89,19 +93,24 @@ export function StudentSearch() {
             <Search className="h-5 w-5" />
             Búsqueda de Estudiante
           </CardTitle>
-          <CardDescription>Ingrese el número de libreta para buscar los datos del estudiante</CardDescription>
+          <CardDescription>
+            Ingrese su DNI sin puntos (ej: 43323124)
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex gap-2">
             <Input
-              type="number"
-              placeholder="Ingrese su número de libreta"
-              value={libreta}
-              onChange={(e) => setLibreta(e.target.value)}
+              type="tel"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              placeholder="Ingrese su DNI sin puntos"
+              value={dniInput}
+              maxLength={8}
+              onChange={(e) => setDniInput(e.target.value.replace(/\D/g, ""))} // 👉 elimina puntos/letras
               disabled={isLoading}
               className="flex-1"
             />
-            <Button onClick={handleSearch} disabled={isLoading || !libreta.trim()} className="px-6">
+            <Button onClick={handleSearch} disabled={isLoading || !dniInput.trim()} className="px-6">
               {isLoading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -145,7 +154,7 @@ export function StudentSearch() {
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                No se encontró ningún estudiante con la libreta <strong>{libreta}</strong>.
+                No se encontró ningún estudiante con el DNI <strong>{dniInput}</strong>.
               </AlertDescription>
             </Alert>
           )}

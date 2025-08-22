@@ -17,6 +17,7 @@ interface Student {
   condicion: string
   comision: string
   profesores: string
+  horario: string
 }
 
 export function StudentSearch() {
@@ -31,7 +32,7 @@ export function StudentSearch() {
   useEffect(() => {
     const loadExcel = async () => {
       try {
-        const response = await fetch("/Comisiones.xlsx")
+        const response = await fetch("/Comisiones con Horarios.xlsx")
         const arrayBuffer = await response.arrayBuffer()
         const workbook = XLSX.read(arrayBuffer, { type: "buffer" })
         const worksheet = workbook.Sheets[workbook.SheetNames[0]]
@@ -47,6 +48,7 @@ export function StudentSearch() {
           condicion: row["Condición"] ?? "",
           comision: row["Comisión"] ?? "",
           profesores: row["Profesores"] ?? "",
+          horario: row["Horarios"] ?? "",
         }))
 
         console.log("Datos normalizados:", normalized)
@@ -144,6 +146,7 @@ export function StudentSearch() {
                   <div><strong>Curso:</strong> {student.curso}</div>
                   <div><strong>Condición:</strong> {student.condicion}</div>
                   <div><strong>Comisión:</strong> {student.comision}</div>
+                  <div><strong>Horario:</strong> {student.horario}</div>
                   <div className="md:col-span-2"><strong>Profesores:</strong> {student.profesores}</div>
                 </div>
               </CardContent>
